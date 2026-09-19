@@ -24,10 +24,9 @@ jobs:
           version: '5.0.4'
           edition: 'community'
 
-      - name: Download Databricks JDBC Driver from Maven
+      - name: Install Databricks Extension
         run: |
-          mkdir -p liquibase/lib
-          curl -L -o liquibase/lib/databricks-jdbc.jar "https://repo1.maven.org/maven2/com/databricks/databricks-jdbc/3.3.1/databricks-jdbc-3.3.1.jar"
+          liquibase lpm add liquibase-databricks
 
       - name: Validate changelog
         env:
@@ -38,7 +37,6 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --classpath=liquibase/lib/* \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
@@ -53,7 +51,6 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --classpath=liquibase/lib/* \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
@@ -68,7 +65,6 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --classpath=liquibase/lib/* \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
