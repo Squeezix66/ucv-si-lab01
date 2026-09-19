@@ -26,6 +26,10 @@ jobs:
       - name: Install Databricks Extension
         run: |
           liquibase lpm add liquibase-databricks
+          liquibase lpm add databricks-jdbc
+
+      - name: Verify Liquibase installation
+        run: liquibase --version
 
       - name: Validate changelog
         env:
