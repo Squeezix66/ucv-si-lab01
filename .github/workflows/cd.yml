@@ -1,24 +1,37 @@
 name: CD - Deploy Database Changes
+
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup Liquibase
-        uses: liquibase/setup-liquibase@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          version: '5.0.4'
-          edition: 'community'
-      - name: Install Databricks extensions
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Liquibase
         run: |
-          liquibase lpm add liquibase-databricks
-          liquibase lpm add databricks-jdbc
+          wget https://github.com/liquibase/liquibase/releases/download/v5.0.4/liquibase-5.0.4.tar.gz
+          tar -xzf liquibase-5.0.4.tar.gz
+          sudo mv liquibase /usr/local/bin/
+          sudo ln -s /usr/local/bin/liquibase/liquibase /usr/local/bin/lb
+
+      - name: Install Databricks JDBC Driver Manually
+        run: |
+          mkdir -p liquibase/lib
+          wget https://github.com/databricks/databricks-jdbc/releases/download/v2.6.25/DatabricksJDBC42.zip
+          unzip DatabricksJDBC42.zip -d temp_driver
+          find temp_driver -name "*.jar" -exec cp {} liquibase/lib/ \;
+
       - name: Validate changelog
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
@@ -28,10 +41,12 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
+            --classpath=liquibase/lib/* \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
             validate
+
       - name: Deploy pending changesets
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
@@ -41,9 +56,12 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
+            --classpath=liquibase/lib/* \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
+            --username=token \
             --password="${DATABRICKS_TOKEN}" \
             update
+
       - name: Confirm database status
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
@@ -53,6 +71,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
+            --classpath=liquibase/lib/* \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
