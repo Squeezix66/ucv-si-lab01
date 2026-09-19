@@ -39,6 +39,7 @@ jobs:
           DATABRICKS_CATALOG: ${{ secrets.DATABRICKS_CATALOG }}
         run: |
           liquibase \
+            --log-level=DEBUG \
             --changelog-file=changelog/db.changelog-master.sql \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
