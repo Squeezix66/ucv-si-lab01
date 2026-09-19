@@ -31,6 +31,15 @@ jobs:
       - name: Verify Liquibase installation
         run: liquibase --version
 
+      - name: Debug URL (no secrets exposed)
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
+        run: |
+          echo "HOST length: ${#DATABRICKS_HOST}"
+          echo "HOST starts with: ${DATABRICKS_HOST:0:10}"
+          echo "HTTP_PATH: ${DATABRICKS_HTTP_PATH}"
+
       - name: Validate changelog
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
