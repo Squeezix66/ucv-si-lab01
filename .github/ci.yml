@@ -3,6 +3,7 @@ name: CI - Validate Database Changes
 on:
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -31,15 +32,6 @@ jobs:
       - name: Verify Liquibase installation
         run: liquibase --version
 
-      - name: Debug URL (no secrets exposed)
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
-        run: |
-          echo "HOST length: ${#DATABRICKS_HOST}"
-          echo "HOST starts with: ${DATABRICKS_HOST:0:10}"
-          echo "HTTP_PATH: ${DATABRICKS_HTTP_PATH}"
-
       - name: Validate changelog
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
@@ -50,9 +42,7 @@ jobs:
           liquibase \
             --log-level=DEBUG \
             --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
-            --username=token \
-            --password="${DATABRICKS_TOKEN}" \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};UID=token;PWD=${DATABRICKS_TOKEN};" \
             validate
 
       - name: Show pending changesets
@@ -64,9 +54,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
-            --username=token \
-            --password="${DATABRICKS_TOKEN}" \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};UID=token;PWD=${DATABRICKS_TOKEN};" \
             status --verbose
 
       - name: Preview SQL
@@ -78,7 +66,5 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
-            --username=token \
-            --password="${DATABRICKS_TOKEN}" \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};UID=token;PWD=${DATABRICKS_TOKEN};" \
             update-sql
