@@ -27,7 +27,7 @@ jobs:
       - name: Download Databricks JDBC Driver from Maven
         run: |
           mkdir -p liquibase/lib
-          curl -L -o liquibase/lib/databricks-jdbc.jar "https://repo1.maven.org/maven2/com/databricks/databricks-jdbc/2.6.36/databricks-jdbc-2.6.36.jar"
+          curl -L -o liquibase/lib/databricks-jdbc.jar "https://repo1.maven.org/maven2/com/databricks/databricks-jdbc/3.3.1/databricks-jdbc-3.3.1.jar"
 
       - name: Validate changelog
         env:
@@ -38,6 +38,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
+            --classpath=liquibase/lib/* \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
@@ -52,6 +53,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
+            --classpath=liquibase/lib/* \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
@@ -66,6 +68,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
+            --classpath=liquibase/lib/* \
             --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
