@@ -23,9 +23,8 @@ jobs:
           version: '5.0.4'
           edition: 'community'
 
-      - name: Install Databricks extension
+      - name: Install Databricks JDBC Driver
         run: |
-          liquibase lpm add liquibase-databricks
           liquibase lpm add databricks-jdbc
 
       - name: Validate changelog
