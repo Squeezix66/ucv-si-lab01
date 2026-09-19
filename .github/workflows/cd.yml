@@ -28,7 +28,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};ConnCatalog=${DATABRICKS_CATALOG};ConnSchema=default;" \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
             validate
@@ -41,8 +41,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};ConnCatalog=${DATABRICKS_CATALOG};ConnSchema=default;" \
-            --username=token \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --password="${DATABRICKS_TOKEN}" \
             update
       - name: Confirm database status
@@ -54,7 +53,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};ConnCatalog=${DATABRICKS_CATALOG};ConnSchema=default;" \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
             status --verbose
