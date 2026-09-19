@@ -1,11 +1,12 @@
-name: CI - Validate Database Changes
+name: CD - Deploy Database Changes
 
 on:
-  pull_request:
+  push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  validate:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,9 +24,10 @@ jobs:
           version: '5.0.4'
           edition: 'community'
 
-      - name: Install Databricks JDBC Driver
+      - name: Download Databricks JDBC Driver from Maven
         run: |
-          liquibase lpm add databricks-jdbc
+          mkdir -p liquibase/lib
+          curl -L -o liquibase/lib/databricks-jdbc.jar "https://repo1.maven.org/maven2/com/databricks/databricks-jdbc/2.6.36/databricks-jdbc-2.6.36.jar"
 
       - name: Validate changelog
         env:
@@ -41,7 +43,21 @@ jobs:
             --password="${DATABRICKS_TOKEN}" \
             validate
 
-      - name: Show pending changesets
+      - name: Deploy pending changesets
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DATABRICKS_CATALOG: ${{ secrets.DATABRICKS_CATALOG }}
+        run: |
+          liquibase \
+            --changelog-file=changelog/db.changelog-master.sql \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
+            --username=token \
+            --password="${DATABRICKS_TOKEN}" \
+            update
+
+      - name: Confirm database status
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
@@ -54,17 +70,3 @@ jobs:
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
             status --verbose
-
-      - name: Preview SQL
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_HTTP_PATH: ${{ secrets.DATABRICKS_HTTP_PATH }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-          DATABRICKS_CATALOG: ${{ secrets.DATABRICKS_CATALOG }}
-        run: |
-          liquibase \
-            --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};" \
-            --username=token \
-            --password="${DATABRICKS_TOKEN}" \
-            update-sql
