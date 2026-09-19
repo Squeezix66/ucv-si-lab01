@@ -27,7 +27,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};ConnCatalog=${DATABRICKS_CATALOG};ConnSchema=default;" \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};ConnCatalog=${DATABRICKS_CATALOG};ConnSchema=default;" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
             validate
@@ -40,7 +40,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};ConnCatalog=${DATABRICKS_CATALOG};ConnSchema=default;" \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};ConnCatalog=${DATABRICKS_CATALOG};ConnSchema=default;" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
             status --verbose
@@ -53,7 +53,7 @@ jobs:
         run: |
           liquibase \
             --changelog-file=changelog/db.changelog-master.sql \
-            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};ConnCatalog=${DATABRICKS_CATALOG};ConnSchema=default;" \
+            --url="jdbc:databricks://${DATABRICKS_HOST}:443/default;transportMode=http;ssl=1;AuthMech=3;httpPath=${DATABRICKS_HTTP_PATH};ConnCatalog=${DATABRICKS_CATALOG};ConnSchema=default;" \
             --username=token \
             --password="${DATABRICKS_TOKEN}" \
             update-sql
